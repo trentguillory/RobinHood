@@ -24,12 +24,14 @@ public class PlayerController : MonoBehaviour {
 		cam = Camera.main;
 		anim = GetComponent<Animator> ();
 		rigbod = GetComponent<Rigidbody2D> ();
+		anim.SetFloat ("health", (float)health);
 	}
 
 	void OnTriggerEnter2D() {
 		health--;
 		if (health < 1) {
 			if (health <= 0) {
+				anim.SetFloat ("health", (float)health);
 				StartCoroutine(pauseForDeathAnimation());
 			}
 		}

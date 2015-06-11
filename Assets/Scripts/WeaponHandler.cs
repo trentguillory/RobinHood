@@ -1,8 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-//testing
-
 public class WeaponHandler : MonoBehaviour {
 	BoxCollider2D boxcol;
 	// Use this for initialization
@@ -16,7 +14,7 @@ public class WeaponHandler : MonoBehaviour {
 	}
 
 	public void Stab() {
-		boxcol.offset = new Vector2 (.05f, .07f);
+		boxcol.offset = new Vector2 (.05f, .09f);
 		StartCoroutine (LingerBeforeRetract ());
 	}
 
