@@ -21,6 +21,7 @@ public class EnemyHandler : MonoBehaviour {
 	public PaceDir paceDir;
 	public float viewDistance = 1;
 	public bool inside = false;
+	public bool WillPace = true;
 
 	// upper left coord
 	public Vector2 roomCoordinateUL = new Vector2 (0, 0);
@@ -32,6 +33,7 @@ public class EnemyHandler : MonoBehaviour {
 	// enemy states
 	enum CharacterState {Pacing, Chasing, Returning, OnGuard};
 	CharacterState characterState = CharacterState.Pacing;
+
 
 	float speedForAnim = 0;
 	bool attackForAnim = false;
@@ -55,6 +57,8 @@ public class EnemyHandler : MonoBehaviour {
 	bool atPoint1 = false;
 	bool atPoint2 = false;
 
+	float SaveSpeed;
+
 	void Start () {
 		anim = GetComponent<Animator> ();
 		anim.SetFloat("health", (float)health);
@@ -64,6 +68,11 @@ public class EnemyHandler : MonoBehaviour {
 		spawnPoint = transform.position;
 		if (characterType == CharacterType.Hostile) {
 			weapon = transform.FindChild("weapon").gameObject;
+		}
+		SaveSpeed = maxSpeed;
+
+		if (!WillPace) {
+			characterState = CharacterState.OnGuard;
 		}
 	}
 
@@ -85,6 +94,7 @@ public class EnemyHandler : MonoBehaviour {
 				Look ();
 				Pace ();
 			} else if (characterState == CharacterState.Chasing) {
+				Look ();
 				LookAtPlayer ();
 				MoveForward ();
 				if (CheckBoundaries (rigbod.position) == true && inside) {
@@ -94,6 +104,7 @@ public class EnemyHandler : MonoBehaviour {
 				//Look ();
 				ReturnToSpawn ();
 			} else {
+				anim.SetFloat ("speed", 0);
 				Look ();
 				LookAtPlayer ();
 			}
@@ -130,6 +141,12 @@ public class EnemyHandler : MonoBehaviour {
 			if(hit.collider.tag == "Player" && characterState == CharacterState.Pacing) {
 				characterState = CharacterState.Chasing;
 			}
+			/*
+			if (hit.collider.tag == "Wall" && hit.distance < 0.2f) {
+				Debug.Log ("Aviudubg wakks");
+				AvoidWallsStart ();
+			}
+			*/
 		}
 
 		if (characterState == CharacterState.OnGuard && CheckBoundaries (rigbodPlayer.position) == false)
@@ -239,28 +256,6 @@ public class EnemyHandler : MonoBehaviour {
 		rigbod.MovePosition (pos);
 	}
 
-	/*void CheckBoundaries() {
-
-		if (inside) {
-			if (rigbod.position.x > roomCoordinateLR.x) {
-				reachedRoomBorder = true;
-			}
-			if (rigbod.position.x < roomCoordinateUL.x) {
-				reachedRoomBorder = true;
-
-			}
-			if (rigbod.position.y > roomCoordinateUL.y) {
-				reachedRoomBorder = true;
-
-			}
-			if (rigbod.position.y < roomCoordinateLR.y) {
-				reachedRoomBorder = true;
-	
-			}
-		}
-	}
-	*/
-
 	// returns true if OUTSIDE of room
 	bool CheckBoundaries(Vector2 gobject) {			
 		if (gobject.x > roomCoordinateLR.x || gobject.x < roomCoordinateUL.x || gobject.y > roomCoordinateUL.y || gobject.y < roomCoordinateLR.y) {
@@ -319,7 +314,21 @@ public class EnemyHandler : MonoBehaviour {
 		Quaternion desiredRotation = Quaternion.Euler (0, 0, zAngle);
 		transform.rotation = Quaternion.RotateTowards (transform.rotation, desiredRotation, rotSpeed * Time.deltaTime);
 	}
+	/*
+	void AvoidWallsStart() {
+		public float maxSpeed = 0;
+		StartCoroutine (pauseForRotationReset());
+	}
 
+	void AvoidWallsEnd() {
+		public float maxSpeed = SaveSpeed;
+	}
+
+	IEnumerator pauseForRotationReset() {
+		yield return new WaitForSeconds(1);
+		AvoidWallsEnd ();
+	}
+	*/
 	IEnumerator pauseForDeathAnimation() {
 		yield return new WaitForSeconds(1);
 		Die ();
